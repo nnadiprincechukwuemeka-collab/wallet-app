@@ -174,16 +174,30 @@ app.post('/api/withdraw', authenticate, (req, res) => {
     return res.status(400).json({ error: "Bank name and account number are required." });
   }
   user.balance -= withdrawAmount;
-// Log details to your VS Code terminal
-  console.log(\n--- NEW WITHDRAWAL REQUEST ---);
-  console.log(User: ${user.name} (${user.email}));
-  console.log(Amount: ₦${withdrawAmount});
-  console.log(Bank Name: ${bankName});
-  console.log(Account Number: ${accountNumber});
-  console.log(------------------------------\n);
+// Save withdrawal record
+  withdrawalRequests.push({
+    id: withdrawalRequests.length + 1,
+    userName: user.name,
+    userEmail: user.email,
+    bankName,
+    accountNumber,
+    amount: withdrawAmount,
+    time: new Date().toLocaleString()
+  });
+
+  console.log(NEW WITHDRAWAL: ₦${withdrawAmount} to ${bankName} (${accountNumber}) by ${user.email});
   res.json({
     message: "Withdrawal request submitted successfully.",
     balance: user.balance
+  });
+});
+// 8. ADMIN VIEW (TO GET ALL REQUESTS)
+app.get('/api/admin/requests', (req, res) => {
+  res.json({
+    totalDeposits: depositRequests.length,
+    totalWithdrawals: withdrawalRequests.length,
+    deposits: depositRequests,
+    withdrawals: withdrawalRequests
   });
 });
 app.listen(PORT, () => {
