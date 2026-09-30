@@ -147,6 +147,12 @@ app.post('/api/deposit-notify', authenticate, (req, res) => {
   }
 
   user.balance += depositAmount;
+  // Log details to your VS Code terminal
+  console.log(\n--- NEW DEPOSIT NOTIFICATION ---);
+  console.log(User: ${user.name} (${user.email}));
+  console.log(Sender Name: ${senderName});
+  console.log(Amount Transferred: ₦${depositAmount});
+  console.log(--------------------------------\n);
   res.json({
     message: `Deposit of ₦${depositAmount.toFixed(2)} received from ${senderName}.`,
     balance: user.balance
@@ -168,7 +174,13 @@ app.post('/api/withdraw', authenticate, (req, res) => {
     return res.status(400).json({ error: "Bank name and account number are required." });
   }
   user.balance -= withdrawAmount;
-
+// Log details to your VS Code terminal
+  console.log(\n--- NEW WITHDRAWAL REQUEST ---);
+  console.log(User: ${user.name} (${user.email}));
+  console.log(Amount: ₦${withdrawAmount});
+  console.log(Bank Name: ${bankName});
+  console.log(Account Number: ${accountNumber});
+  console.log(------------------------------\n);
   res.json({
     message: "Withdrawal request submitted successfully.",
     balance: user.balance
