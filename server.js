@@ -20,9 +20,9 @@ const depositBankInfo = {
 };
 
 const tasks = [
-  { id: 1, title: "Watch Short Ad", reward: 2.50 },
-  { id: 2, title: "Complete Quick Poll", reward: 5.00 },
-  { id: 3, title: "Test New Feature", reward: 10.00 }
+  { id: 1, title: "Watch Short Ad", reward: 1000 },
+  { id: 2, title: "Complete Quick Poll", reward: 5000 },
+  { id: 3, title: "Test New Feature", reward: 10000 }
 ];
 
 // Helper middleware to verify user session
