@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task & Earnings Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      max-width: 500px;
+      margin: 15px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .task-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0 12px 0;
+      box-sizing: border-box;
+    }
+    .msg {
+      color: #28a745;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Wallet Balance</h2>
+    <h3>$<span id="balance">0.00</span></h3>
+  </div>
+
+  <div class="card">
+    <h3>Available Tasks</h3>
+    <div id="tasksContainer">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h3>Withdraw Money</h3>
+    <form id="withdrawForm">
+      <label>Amount ($)</label>
+      <input type="number" id="amount" step="0.01" required>
+
+      <label>Bank Name</label>
+      <input type="text" id="bankName" required>
+
+      <label>Account Number</label>
+      <input type="text" id="accountNumber" required>
+
+      <button type="submit" style="width: 100%;">Submit Withdrawal</button>
+    </form>
+  </div>
+
+  <div class="msg" id="statusMessage"></div>
+
+  <script>
+    async function updateDashboard() {
+      const res = await fetch('/api/wallet');
+      const data = await res.json();
+
+      document.getElementById('balance').innerText = data.balance.toFixed(2);
+
+      const container = document.getElementById('tasksContainer');
+      container.innerHTML = '';
+
+      data.tasks.forEach(task => {
+        const row = document.createElement('div');
+        row.className = 'task-row';
+        row.innerHTML = `
+          <span>${task.title} - <strong>$${task.reward.toFixed(2)}</strong></span>
+          <button onclick="doTask(${task.id})" ${task.isCompleted ? 'disabled' : ''}>
+            ${task.isCompleted ? 'Done' : 'Start'}
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    async function doTask(taskId) {
+      const res = await fetch('/api/perform-task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taskId })
+      });
+      const data = await res.json();
+      document.getElementById('statusMessage').innerText = data.message || data.error;
+      updateDashboard();
+    }
+
+    document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = document.getElementById('amount').value;
+      const bankName = document.getElementById('bankName').value;
+      const accountNumber = document.getElementById('accountNumber').value;
+
+      const res = await fetch('/api/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, bankName, accountNumber })
+      });
+      const data = await res.json();
+      document.getElementById('statusMessage').innerText = data.message || data.error;
+
+      if (res.ok) {
+        document.getElementById('withdrawForm').reset();
+      }
+      updateDashboard();
+    });
+
+    updateDashboard();
+  </script>
+
+</body>
+</html>
