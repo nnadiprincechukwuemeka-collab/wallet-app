@@ -11,7 +11,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // In-memory data store
 const users = {}; // Stores: { email: { name, passwordHash, balance, completedTasks: [] } }
 let activeSessions = {}; // Stores logged-in tokens: { token: email }
-
+// Storage arrays for submitted requests
+let depositRequests = [];
+let withdrawalRequests = [];
 // Bank Details for Deposits
 const depositBankInfo = {
   bankName: "Zenith Bank",
